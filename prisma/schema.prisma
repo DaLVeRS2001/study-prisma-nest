@@ -1,0 +1,89 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider     = "postgresql"
+  relationMode = "prisma"
+}
+
+model Home {
+  id                  Int          @id @default(autoincrement())
+  address             String
+  number_of_bedrooms  Int
+  number_of_bathrooms Float
+  city                String
+  listed_date         DateTime     @default(now())
+  price               Float
+  land_size           Float
+  property_type       PropertyType
+  created_at          DateTime     @default(now())
+  updated_at          DateTime     @updatedAt
+  realtor_id          Int
+  realtor             User         @relation(fields: [realtor_id], references: [id])
+  messages            Message[]
+  images              Image[]
+
+  @@index([realtor_id])
+}
+
+model Message {
+  id         Int    @id @default(autoincrement())
+  message    String
+  home_id    Int
+  realtor_id Int
+  buyer_id   Int
+
+  home    Home @relation(fields: [home_id], references: [id])
+  realtor User @relation("RealtorMessages", fields: [realtor_id], references: [id])
+  buyer   User @relation("BuyerMessages", fields: [buyer_id], references: [id])
+
+  @@index([home_id])
+  @@index([realtor_id])
+  @@index([buyer_id])
+}
+
+model User {
+  id         Int      @id @default(autoincrement())
+  name       String
+  phone      String
+  email      String
+  password   String
+  test       String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  user_type  UserType
+
+  homes           Home[]
+  realtorMessages Message[] @relation("RealtorMessages")
+  buyerMessages   Message[] @relation("BuyerMessages")
+}
+
+model Image {
+  id         Int      @id @default(autoincrement())
+  url        String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  home_id    Int
+  home       Home     @relation(fields: [home_id], references: [id])
+
+  @@index([home_id])
+}
+
+enum PropertyType {
+  RESIDENTIAL
+  CONDO
+}
+
+enum UserType {
+  BUYER
+  REALTOR
+  ADMIN
+}
