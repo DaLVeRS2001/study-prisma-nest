@@ -11,55 +11,55 @@ generator client {
 }
 
 datasource db {
-  provider     = "postgresql"
-  relationMode = "prisma"
+  provider = "postgresql"
 }
 
 model Home {
-  id                  Int          @id @default(autoincrement())
-  address             String
-  number_of_bedrooms  Int
-  number_of_bathrooms Float
-  city                String
-  listed_date         DateTime     @default(now())
-  price               Float
-  land_size           Float
-  property_type       PropertyType
-  created_at          DateTime     @default(now())
-  updated_at          DateTime     @updatedAt
-  realtor_id          Int
-  realtor             User         @relation(fields: [realtor_id], references: [id])
-  messages            Message[]
-  images              Image[]
+  id                Int          @id @default(autoincrement())
+  address           String
+  numberOfBedrooms  Int          @map("number_of_bedrooms")
+  numberOfBathrooms Float        @map("number_of_bathrooms")
+  city              String
+  listedDate        DateTime     @default(now()) @map("listed_date")
+  price             Float
+  landSize          Float        @map("land_size")
+  propertyType      PropertyType @map("property_type")
+  createdAt         DateTime     @default(now()) @map("created_at")
+  updatedAt         DateTime     @updatedAt @map("updated_at")
+  realtorId         Int          @map("realtor_id")
 
-  @@index([realtor_id])
+  realtor  User      @relation(fields: [realtorId], references: [id])
+  messages Message[]
+  images   Image[]
+
+  @@index([realtorId])
 }
 
 model Message {
-  id         Int    @id @default(autoincrement())
-  message    String
-  home_id    Int
-  realtor_id Int
-  buyer_id   Int
+  id        Int    @id @default(autoincrement())
+  message   String
+  homeId    Int    @map("home_id")
+  realtorId Int    @map("realtor_id")
+  buyerId   Int    @map("buyer_id")
 
-  home    Home @relation(fields: [home_id], references: [id])
-  realtor User @relation("RealtorMessages", fields: [realtor_id], references: [id])
-  buyer   User @relation("BuyerMessages", fields: [buyer_id], references: [id])
+  home    Home @relation(fields: [homeId], references: [id])
+  realtor User @relation("RealtorMessages", fields: [realtorId], references: [id])
+  buyer   User @relation("BuyerMessages", fields: [buyerId], references: [id])
 
-  @@index([home_id])
-  @@index([realtor_id])
-  @@index([buyer_id])
+  @@index([homeId])
+  @@index([realtorId])
+  @@index([buyerId])
 }
 
 model User {
-  id         Int      @id @default(autoincrement())
-  name       String
-  phone      String
-  email      String   @unique
-  password   String
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-  user_type  UserType
+  id        Int      @id @default(autoincrement())
+  name      String
+  phone     String
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  userType  UserType @map("user_type")
 
   homes           Home[]
   realtorMessages Message[] @relation("RealtorMessages")
@@ -67,14 +67,14 @@ model User {
 }
 
 model Image {
-  id         Int      @id @default(autoincrement())
-  url        String
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-  home_id    Int
-  home       Home     @relation(fields: [home_id], references: [id])
+  id        Int      @id @default(autoincrement())
+  url       String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  homeId    Int      @map("home_id")
+  home      Home     @relation(fields: [homeId], references: [id])
 
-  @@index([home_id])
+  @@index([homeId])
 }
 
 enum PropertyType {
