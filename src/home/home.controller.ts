@@ -10,10 +10,16 @@ import {
   Query,
 } from '@nestjs/common';
 import { HomeService } from './home.service';
-import { CreateHomeDto, HomeResponseDto, UpdateHomeDto } from './dto/home.dto';
+import {
+  CreateHomeDto,
+  HomeResponseDto,
+  InquireDto,
+  UpdateHomeDto,
+} from './dto/home.dto';
 import { PropertyType, UserType } from 'generated/prisma/enums';
 import { User } from 'src/user/decorators/user.decorator';
 import { Auth } from 'src/user/decorators/auth.decorator';
+import { IJwtPayload } from 'src/user/auth/types/jwt-payload.type';
 
 @Controller('home')
 export class HomeController {
@@ -69,5 +75,24 @@ export class HomeController {
     @User('id') userId: number,
   ) {
     return this.homeService.deleteHome(id, userId);
+  }
+
+  @Auth(UserType.BUYER)
+  @Post(':id/inquire')
+  inquire(
+    @Param('id', ParseIntPipe) homeId: number,
+    @User() user: IJwtPayload,
+    @Body() { message }: InquireDto,
+  ) {
+    return this.homeService.inquire(user, homeId, message);
+  }
+
+  @Auth(UserType.REALTOR)
+  @Get(':id/messages')
+  getHomeMessages(
+    @Param('id', ParseIntPipe) homeId: number,
+    @User() user: IJwtPayload,
+  ) {
+    return this.homeService.getMessagesByHome(user, homeId);
   }
 }

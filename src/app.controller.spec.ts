@@ -19,4 +19,8 @@ describe('AppController', () => {
       expect(appController).toBeDefined();
     });
   });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
 });

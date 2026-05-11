@@ -4,9 +4,16 @@ import { PrismaService } from './prisma.service';
 describe('PrismaService', () => {
   let service: PrismaService;
 
+  const prismaMock = {};
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [PrismaService],
+      providers: [
+        {
+          provide: PrismaService,
+          useValue: prismaMock,
+        },
+      ],
     }).compile();
 
     service = module.get<PrismaService>(PrismaService);
@@ -14,5 +21,9 @@ describe('PrismaService', () => {
 
   it('should be defined', () => {
     expect(service).toBeDefined();
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 });

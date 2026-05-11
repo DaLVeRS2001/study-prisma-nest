@@ -6,6 +6,7 @@ import {
 import { PrismaService } from 'src/prisma/prisma.service';
 import { HomeResponseDto } from './dto/home.dto';
 import { PropertyType } from 'generated/prisma/enums';
+import { IJwtPayload } from 'src/user/auth/types/jwt-payload.type';
 
 interface GetHomesParam {
   city?: string;
@@ -123,5 +124,57 @@ export class HomeService {
     return {
       message: 'Home deleted successfully',
     };
+  }
+
+  async inquire(buyer: IJwtPayload, homeId: number, message: string) {
+    const home = await this.prisma.home.findUnique({
+      where: {
+        id: homeId,
+      },
+    });
+
+    if (!home) throw new NotFoundException('Home is not found');
+
+    const realtorId = home.realtorId;
+
+    const newMessage = await this.prisma.message.create({
+      data: {
+        realtorId,
+        buyerId: buyer.id,
+        homeId,
+        message,
+      },
+    });
+
+    return newMessage;
+  }
+
+  async getMessagesByHome(realtor: IJwtPayload, homeId: number) {
+    const home = await this.prisma.home.findUnique({
+      where: {
+        id: homeId,
+      },
+    });
+
+    if (!home) throw new NotFoundException('Home is not found');
+
+    const messages = await this.prisma.message.findMany({
+      where: {
+        homeId: home.id,
+        realtorId: realtor.id,
+      },
+      select: {
+        message: true,
+        buyer: {
+          select: {
+            email: true,
+            name: true,
+            phone: true,
+          },
+        },
+      },
+    });
+
+    return messages;
   }
 }
