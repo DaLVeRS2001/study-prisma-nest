@@ -6,7 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "build": "npm run test && prisma generate && nest build",
+    "build": "prisma generate && nest build && npm run test",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "cross-env APP_ENV=local nest start",
     "start:dev": "nest start --watch",
